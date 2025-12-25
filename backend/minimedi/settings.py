@@ -2,6 +2,12 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 import dj_database_url
+<<<<<<< HEAD
+=======
+
+
+# BASE CONFIG
+>>>>>>> 838e119e5ab9ddd5a3a92da92fa6433ec52a1725
 
 # =========================
 # BASE CONFIG
@@ -11,14 +17,32 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Load .env for local development
 load_dotenv(BASE_DIR / ".env")
 
+<<<<<<< HEAD
 # =========================
 # SECURITY
 # =========================
+=======
+
+# SECURITY
+
+>>>>>>> 838e119e5ab9ddd5a3a92da92fa6433ec52a1725
 SECRET_KEY = os.getenv("SECRET_KEY")
 if not SECRET_KEY:
     raise Exception("SECRET_KEY missing")
 
 DEBUG = os.getenv("DEBUG", "False") == "True"
+<<<<<<< HEAD
+=======
+
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    ".onrender.com",
+]
+
+
+# API KEYS
+>>>>>>> 838e119e5ab9ddd5a3a92da92fa6433ec52a1725
 
 ALLOWED_HOSTS = [
     "localhost",
@@ -32,10 +56,17 @@ ALLOWED_HOSTS = [
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
+<<<<<<< HEAD
 
 # =========================
 # INSTALLED APPS
 # =========================
+=======
+
+
+# INSTALLED APPS
+
+>>>>>>> 838e119e5ab9ddd5a3a92da92fa6433ec52a1725
 INSTALLED_APPS = [
     "corsheaders",
     "rest_framework",
@@ -53,9 +84,15 @@ INSTALLED_APPS = [
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
+<<<<<<< HEAD
 # =========================
 # MIDDLEWARE
 # =========================
+=======
+
+# MIDDLEWARE
+
+>>>>>>> 838e119e5ab9ddd5a3a92da92fa6433ec52a1725
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
@@ -130,19 +167,33 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+<<<<<<< HEAD
 # =========================
 # CORS
 # =========================
+=======
+
+# CORS
+
+>>>>>>> 838e119e5ab9ddd5a3a92da92fa6433ec52a1725
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
+<<<<<<< HEAD
     "https://minimedi-ai.vercel.app/",
 ]
 
 # =========================
 # DJANGO REST FRAMEWORK
 # =========================
+=======
+    "https://your-frontend.vercel.app",
+]
+
+# DJANGO REST FRAMEWORK
+
+>>>>>>> 838e119e5ab9ddd5a3a92da92fa6433ec52a1725
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "users.authentication.JWTAuthentication",
