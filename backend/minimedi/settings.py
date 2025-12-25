@@ -1,111 +1,153 @@
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+import dj_database_url
 
+# =========================
+# BASE CONFIG
+# =========================
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Load .env for local development
 load_dotenv(BASE_DIR / ".env")
 
+# =========================
+# SECURITY
+# =========================
 SECRET_KEY = os.getenv("SECRET_KEY")
 if not SECRET_KEY:
     raise Exception("SECRET_KEY missing")
 
-DEBUG = True
-ALLOWED_HOSTS = ["*"]
+DEBUG = os.getenv("DEBUG", "False") == "True"
 
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    ".onrender.com",
+]
+
+# =========================
+# API KEYS
+# =========================
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "YOUR_GOOGLE_CLIENT_ID")
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 
-#  Installed apps
+# =========================
+# INSTALLED APPS
+# =========================
 INSTALLED_APPS = [
-    'corsheaders',
-    'rest_framework',
-    'users',
-    'aicheck',
-    'symptoms',
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
+    "corsheaders",
+    "rest_framework",
+    "users",
+    "aicheck",
+    "symptoms",
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
 ]
 
-#  Middleware setup
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# =========================
+# MIDDLEWARE
+# =========================
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',  # Place CORS first
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = 'minimedi.urls'
 
-#  Templates
+# URL / WSGI
+
+ROOT_URLCONF = "minimedi.urls"
+WSGI_APPLICATION = "minimedi.wsgi.application"
+
+
+# TEMPLATES
+
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'minimedi.wsgi.application'
 
-#  SQLite for easy dev
+# DATABASE (POSTGRESQL)
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    "default": dj_database_url.parse(
+        os.getenv("DATABASE_URL"),
+        conn_max_age=600,
+        ssl_require=not DEBUG
+    )
 }
 
-#  Password validators (can trim down if testing)
+
+# PASSWORD VALIDATION
+
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
 ]
 
-#  Localization
-LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'Asia/Kolkata'
+
+# INTERNATIONALIZATION
+
+LANGUAGE_CODE = "en-us"
+TIME_ZONE = "Asia/Kolkata"
 USE_I18N = True
 USE_TZ = True
 
-#  Static files
-STATIC_URL = 'static/'
 
-# # 🧠 OpenAI integration (direct key usage)
-# OPENAI_API_KEY = 'sk-xxxx-your-openai-key-here'
-# OPENAI_MODEL = 'gpt-3.5-turbo'
+# STATIC FILES
 
-#  CORS setup
-CORS_ALLOW_ALL_ORIGINS = True
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# =========================
+# CORS
+# =========================
+CORS_ALLOW_CREDENTIALS = True
+
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",  # Adjust if using Vite or other frontend port
+    "http://localhost:5173",
+    "https://minimedi-ai.vercel.app/",
 ]
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-# DRF Configuration
+# =========================
+# DJANGO REST FRAMEWORK
+# =========================
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'users.authentication.JWTAuthentication',
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "users.authentication.JWTAuthentication",
     ],
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.AllowAny',
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.AllowAny",
     ],
 }
