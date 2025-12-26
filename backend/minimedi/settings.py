@@ -23,7 +23,8 @@ DEBUG = os.getenv("DEBUG", "False") == "True"
 ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
-    "https://minimedi.onrender.com",
+    "minimedi.onrender.com",
+    ".onrender.com",
 ]
 
 # =========================
@@ -138,6 +139,7 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "https://minimedi-ai.vercel.app",
+    "https://minimedi.onrender.com",
 ]
 
 # =========================
