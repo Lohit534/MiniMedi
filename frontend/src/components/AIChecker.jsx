@@ -172,20 +172,32 @@ export default function AIChecker() {
         </div>
 
         <div className="p-6 bg-gray-50/50 dark:bg-slate-900/50 border-t border-gray-100 dark:border-slate-800">
-          <form onSubmit={handleSubmit} className="relative flex items-center">
-            <input
-              type="text"
+          <form onSubmit={handleSubmit} className="relative flex items-end">
+            <textarea
               autoFocus
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={(e) => {
+                setQuery(e.target.value);
+                // Auto-resize textarea
+                e.target.style.height = 'auto';
+                e.target.style.height = e.target.scrollHeight + 'px';
+              }}
+              onKeyDown={(e) => {
+                // Submit on Enter, new line on Shift+Enter
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSubmit(e);
+                }
+              }}
               placeholder="Tell me more or ask a question..."
-              className="w-full bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl px-6 py-4 pr-16 focus:outline-none focus:ring-4 focus:ring-blue-500/5 dark:focus:ring-blue-500/10 focus:border-blue-600 dark:focus:border-blue-500 transition-all text-gray-900 dark:text-white shadow-sm"
+              className="w-full bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl px-6 py-4 pr-16 focus:outline-none focus:ring-4 focus:ring-blue-500/5 dark:focus:ring-blue-500/10 focus:border-blue-600 dark:focus:border-blue-500 transition-all text-gray-900 dark:text-white shadow-sm resize-none overflow-hidden min-h-[56px] max-h-[200px]"
               disabled={isLoading}
+              rows={1}
             />
             <button
               type="submit"
               disabled={isLoading || !query.trim()}
-              className="absolute right-2 bg-blue-600 text-white p-3 rounded-xl hover:bg-blue-700 transition-all disabled:opacity-30 shadow-md shadow-blue-100 dark:shadow-blue-900/20"
+              className="absolute right-2 bottom-2 bg-blue-600 text-white p-3 rounded-xl hover:bg-blue-700 transition-all disabled:opacity-30 shadow-md shadow-blue-100 dark:shadow-blue-900/20"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" /></svg>
             </button>
