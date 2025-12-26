@@ -111,25 +111,25 @@ const HomePage = ({ setIsChatbotOpen }) => {
     return (
         <div className="min-h-screen bg-white dark:bg-slate-950 font-sans text-gray-900 dark:text-gray-100 transition-colors duration-300">
             {/* Hero Section */}
-            <section className="pt-20 pb-20 px-6 bg-blue-50/50 dark:bg-blue-950/20">
+            <section className="min-h-[calc(100vh-72px)] flex items-center justify-center pt-24 pb-20 px-6 bg-blue-50/50 dark:bg-blue-950/20">
                 <div className="max-w-4xl mx-auto text-center space-y-6">
-                    <h1 className="text-5xl md:text-6xl font-bold tracking-tight text-gray-900 dark:text-white">
+                    <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-gray-900 dark:text-white">
                         <span className="text-blue-600 dark:text-blue-400">MiniMedi</span> - <span className="text-purple-600 dark:text-purple-400">Your AI Health</span>
                         <br />
                         <span className="text-purple-600 dark:text-purple-400">Companion</span>
                     </h1>
-                    <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed text-center">
+                    <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed text-center">
                         Get instant health insights, symptom analysis, and personalized recommendations powered by advanced AI technology
                     </p>
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-                        <Link to="/ai-checker" className="bg-black dark:bg-white dark:text-black text-white px-8 py-3.5 rounded-lg font-semibold flex items-center gap-2 hover:bg-gray-800 dark:hover:bg-gray-200 transition-all">
+                        <Link to="/ai-checker" className="w-full sm:w-auto bg-black dark:bg-white dark:text-black text-white px-8 py-3.5 rounded-lg font-semibold flex items-center justify-center gap-2 hover:bg-gray-800 dark:hover:bg-gray-200 transition-all">
                             Try AI Checker
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
                         </Link>
                         {getToken() && (
                             <button
                                 onClick={() => setIsChatbotOpen(true)}
-                                className="bg-white dark:bg-slate-900 text-gray-900 dark:text-white border border-gray-200 dark:border-slate-800 px-8 py-3.5 rounded-lg font-semibold hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
+                                className="w-full sm:w-auto bg-white dark:bg-slate-900 text-gray-900 dark:text-white border border-gray-200 dark:border-slate-800 px-8 py-3.5 rounded-lg font-semibold hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
                             >
                                 Chat with AI
                             </button>
