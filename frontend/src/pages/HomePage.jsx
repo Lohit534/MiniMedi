@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getToken } from '../utils/auth';
 import { toast } from 'react-toastify';
@@ -103,6 +103,11 @@ const FeatureCard = ({ icon: Icon, title, description }) => (
 );
 
 const HomePage = ({ setIsChatbotOpen }) => {
+    // Scroll to top on component mount to ensure mobile users see the hero section
+    useEffect(() => {
+        window.scrollTo({ top: 0, behavior: 'instant' });
+    }, []);
+
     return (
         <div className="min-h-screen bg-white dark:bg-slate-950 font-sans text-gray-900 dark:text-gray-100 transition-colors duration-300">
             {/* Hero Section */}
