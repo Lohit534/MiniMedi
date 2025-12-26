@@ -160,9 +160,13 @@ const Login = () => {
               </div>
 
               <div className="text-[11px]">
-                <a href="#" className="font-bold text-gray-900 dark:text-gray-100 hover:opacity-70 transition-opacity">
+                <button
+                  type="button"
+                  onClick={() => toast.info("Password reset feature coming soon! Please contact support at lohithpeyyala@gmail.com for assistance.", { autoClose: 5000 })}
+                  className="font-bold text-gray-900 dark:text-gray-100 hover:opacity-70 transition-opacity"
+                >
                   Forgot password?
-                </a>
+                </button>
               </div>
             </div>
 

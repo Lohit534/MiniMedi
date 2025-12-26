@@ -23,6 +23,9 @@ const Layout = ({ theme, toggleTheme, isChatbotOpen, setIsChatbotOpen }) => {
   const location = useLocation();
   const token = getToken();
 
+  // Hide MiniChatbot on AI checker page
+  const showMiniChatbot = token && location.pathname !== '/ai-checker';
+
   return (
     <div className="flex flex-col min-h-screen transition-colors duration-300 dark:bg-slate-950">
       <Navbar theme={theme} toggleTheme={toggleTheme} token={token} />
@@ -36,7 +39,7 @@ const Layout = ({ theme, toggleTheme, isChatbotOpen, setIsChatbotOpen }) => {
         </Routes>
       </main>
       <Footer />
-      {token && <MiniChatbot isOpen={isChatbotOpen} setIsOpen={setIsChatbotOpen} />}
+      {showMiniChatbot && <MiniChatbot isOpen={isChatbotOpen} setIsOpen={setIsChatbotOpen} />}
     </div>
   );
 };
