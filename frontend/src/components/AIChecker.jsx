@@ -362,10 +362,10 @@ export default function AIChecker() {
           <div className="absolute bottom-32 left-1/2 -translate-x-1/2 z-[100]">
             <button
               onClick={scrollToBottom}
-              className="bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-2xl border-2 border-blue-400 transition-all duration-200 hover:scale-110"
+              className="bg-gray-400 hover:bg-gray-500 text-white p-2 rounded-full shadow-lg border border-gray-300 transition-all duration-200 hover:scale-110"
               title="Scroll to bottom"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                 <path d="m18 15-6 6-6-6" />
               </svg>
             </button>
