@@ -160,13 +160,13 @@ export default function AIChecker() {
 
       setMessages(prev => [...prev, { role: "assistant", content: aiText }]);
 
-      // Store the extracted data in localStorage for later use when New Chat is clicked
+      // Auto-save when consultation is complete
       if (dataMatch) {
         try {
           const extracted = JSON.parse(dataMatch[1].trim());
           if (extracted.complete) {
-            // Store the complete data and AI response for saving later
-            localStorage.setItem('minimedi_pending_save', JSON.stringify({
+            // IMMEDIATELY save to history when consultation completes
+            const response = await axiosInstance.post("/symptoms/", {
               patient_name: extracted.name || "Guest",
               title: "Health Analysis Report",
               description: extracted.symptoms || "General health inquiry",
@@ -176,10 +176,15 @@ export default function AIChecker() {
               duration: parseInt(extracted.duration) || 1,
               severity: "MEDIUM",
               risk_score: Math.floor(Math.random() * 40) + 20
-            }));
+            });
+
+            // Store the saved record ID for later update
+            if (response.data && response.data.id) {
+              localStorage.setItem('minimedi_saved_record_id', response.data.id.toString());
+            }
           }
         } catch (e) {
-          console.error("Internal data sync error:", e);
+          console.error("Auto-save error:", e);
         }
       }
     } catch (error) {
@@ -191,28 +196,25 @@ export default function AIChecker() {
   };
 
   const resetChat = async () => {
-    // Save the conversation to history before resetting
-    const pendingSave = localStorage.getItem('minimedi_pending_save');
-    if (pendingSave) {
+    // Update the saved record with full conversation before resetting
+    const savedRecordId = localStorage.getItem('minimedi_saved_record_id');
+    if (savedRecordId) {
       try {
-        const saveData = JSON.parse(pendingSave);
-
         // Create a summary of the entire conversation
         const conversationSummary = messages
           .filter(msg => msg.role === 'assistant')
           .map(msg => msg.content)
           .join('\n\n');
 
-        // Save to history with the full conversation
-        await axiosInstance.post("/symptoms/", {
-          ...saveData,
-          ai_analysis: conversationSummary // Save entire conversation
+        // Update the existing record with full conversation
+        await axiosInstance.patch(`/symptoms/${savedRecordId}/`, {
+          ai_analysis: conversationSummary
         });
 
-        // Clear the pending save
-        localStorage.removeItem('minimedi_pending_save');
+        // Clear the saved record ID
+        localStorage.removeItem('minimedi_saved_record_id');
       } catch (e) {
-        console.error("Failed to save conversation to history:", e);
+        console.error("Failed to update conversation history:", e);
       }
     }
 

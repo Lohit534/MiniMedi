@@ -54,14 +54,25 @@ def check_symptom(request):
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-@api_view(['DELETE'])
+@api_view(['DELETE', 'PATCH'])
 @permission_classes([IsAuthenticated])
 def log_symptom_detail(request, pk):
     try:
-        # Ensure the user can only delete their OWN symptom
+        # Ensure the user can only access their OWN symptom
         symptom = Symptom.objects.get(pk=pk, user=request.user)
-        symptom.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        
+        if request.method == 'DELETE':
+            symptom.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        
+        elif request.method == 'PATCH':
+            # Update symptom with new data (e.g., full conversation)
+            serializer = SymptomSerializer(symptom, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
     except Symptom.DoesNotExist:
         return Response({'error': 'Symptom not found or unauthorized'}, status=status.HTTP_404_NOT_FOUND)
 
