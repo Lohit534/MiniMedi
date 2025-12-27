@@ -357,10 +357,10 @@ export default function AIChecker() {
         {showScrollButton && (
           <button
             onClick={scrollToBottom}
-            className="absolute bottom-24 right-6 bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-300 p-3 rounded-full shadow-lg border border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700 transition-all animate-in fade-in zoom-in-95 duration-200"
+            className="absolute bottom-28 right-6 z-50 bg-white dark:bg-slate-700 text-gray-800 dark:text-white p-3.5 rounded-full shadow-2xl border-2 border-gray-300 dark:border-slate-600 hover:bg-gray-100 dark:hover:bg-slate-600 transition-all animate-in fade-in zoom-in-95 duration-200 hover:scale-110"
             title="Scroll to bottom"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
               <path d="m18 15-6 6-6-6" />
             </svg>
           </button>
