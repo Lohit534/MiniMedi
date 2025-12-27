@@ -233,8 +233,8 @@ export default function History() {
                 key={filter.value}
                 onClick={() => setTimeFilter(filter.value)}
                 className={`px-4 py-2 rounded-xl font-semibold text-sm transition-all shadow-sm ${timeFilter === filter.value
-                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
-                    : 'bg-white dark:bg-slate-900 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-800'
+                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
+                  : 'bg-white dark:bg-slate-900 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-800'
                   }`}
               >
                 {filter.label}
@@ -353,7 +353,16 @@ export default function History() {
                           </div>
                           <div className="space-y-1 bg-gray-50/50 dark:bg-slate-800/50 p-4 rounded-xl border border-gray-50 dark:border-slate-700">
                             <p className="text-xs text-gray-400 font-bold uppercase">Duration:</p>
-                            <p className="text-xl font-bold text-gray-800 dark:text-gray-200">{entry.duration || 1} {entry.duration === 1 ? 'Day' : 'Days'}</p>
+                            <p className="text-xl font-bold text-gray-800 dark:text-gray-200">
+                              {entry.duration >= 730
+                                ? `${Math.round(entry.duration / 365)} ${Math.round(entry.duration / 365) === 1 ? 'Year' : 'Years'}`
+                                : entry.duration >= 60
+                                  ? `${Math.round(entry.duration / 30)} ${Math.round(entry.duration / 30) === 1 ? 'Month' : 'Months'}`
+                                  : entry.duration >= 14
+                                    ? `${Math.round(entry.duration / 7)} ${Math.round(entry.duration / 7) === 1 ? 'Week' : 'Weeks'}`
+                                    : `${entry.duration || 1} ${entry.duration === 1 ? 'Day' : 'Days'}`
+                              }
+                            </p>
                           </div>
                         </div>
                       </div>
