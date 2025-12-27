@@ -177,16 +177,35 @@ export default function AIChecker() {
 
       setMessages(prev => [...prev, { role: "assistant", content: aiText }]);
 
-      // Auto-save when consultation is complete
+      // Auto-save or update on EVERY AI response (not just when complete)
       if (dataMatch) {
         try {
           const extracted = JSON.parse(dataMatch[1].trim());
-          if (extracted.complete) {
-            // IMMEDIATELY save to history when consultation completes
+          const savedRecordId = localStorage.getItem('minimedi_saved_record_id');
+
+          // Check if we already have a saved record for this conversation
+          if (savedRecordId) {
+            // UPDATE existing record with latest conversation
+            const conversationSummary = [...messages, { role: "assistant", content: aiText }]
+              .filter(msg => msg.role === 'assistant')
+              .map(msg => msg.content)
+              .join('\n\n');
+
+            await axiosInstance.patch(`/symptoms/${savedRecordId}/`, {
+              ai_analysis: conversationSummary,
+              // Update other fields if available
+              ...(extracted.name && { patient_name: extracted.name }),
+              ...(extracted.age && { age: parseInt(extracted.age) }),
+              ...(extracted.gender && { gender: extracted.gender }),
+              ...(extracted.symptoms && { description: extracted.symptoms }),
+              ...(extracted.duration && { duration: parseInt(extracted.duration) })
+            });
+          } else {
+            // CREATE new record (first save)
             const response = await axiosInstance.post("/symptoms/", {
               patient_name: extracted.name || "Guest",
               title: "Health Analysis Report",
-              description: extracted.symptoms || "General health inquiry",
+              description: extracted.symptoms || "In progress...",
               ai_analysis: aiText,
               age: parseInt(extracted.age) || 0,
               gender: extracted.gender || "Unknown",
@@ -195,13 +214,13 @@ export default function AIChecker() {
               risk_score: Math.floor(Math.random() * 40) + 20
             });
 
-            // Store the saved record ID for later update
+            // Store record ID for future updates
             if (response.data && response.data.id) {
               localStorage.setItem('minimedi_saved_record_id', response.data.id.toString());
             }
           }
         } catch (e) {
-          console.error("Auto-save error:", e);
+          console.error("Auto-save/update error:", e);
         }
       }
     } catch (error) {
