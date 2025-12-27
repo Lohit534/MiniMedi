@@ -149,13 +149,17 @@ export default function AIChecker() {
 
     const handleScroll = () => {
       const { scrollTop, scrollHeight, clientHeight } = chatContainer;
-      const isAtBottom = scrollHeight - scrollTop - clientHeight < 100;
+      // Show button if NOT at bottom (threshold: 50px from bottom)
+      const isAtBottom = scrollHeight - scrollTop - clientHeight < 50;
       setShowScrollButton(!isAtBottom);
     };
 
+    // Check initial scroll position
+    handleScroll();
+
     chatContainer.addEventListener('scroll', handleScroll);
     return () => chatContainer.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [messages]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
