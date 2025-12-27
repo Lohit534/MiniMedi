@@ -115,7 +115,9 @@ export default function AIChecker() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [showScrollButton, setShowScrollButton] = useState(false);
   const messagesEndRef = useRef(null);
+  const chatContainerRef = useRef(null);
 
   useEffect(() => {
     const token = getToken();
@@ -139,6 +141,21 @@ export default function AIChecker() {
       scrollToBottom();
     }
   }, [messages]);
+
+  // Detect scroll position to show/hide scroll button
+  useEffect(() => {
+    const chatContainer = chatContainerRef.current;
+    if (!chatContainer) return;
+
+    const handleScroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } = chatContainer;
+      const isAtBottom = scrollHeight - scrollTop - clientHeight < 100;
+      setShowScrollButton(!isAtBottom);
+    };
+
+    chatContainer.addEventListener('scroll', handleScroll);
+    return () => chatContainer.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -275,8 +292,8 @@ export default function AIChecker() {
         </button>
       </div>
 
-      <div className="flex-1 bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-gray-100 dark:border-slate-800 flex flex-col overflow-hidden min-h-0">
-        <div className="flex-1 p-6 overflow-y-auto space-y-6 scrollbar-hide">
+      <div className="flex-1 bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-gray-100 dark:border-slate-800 flex flex-col overflow-hidden min-h-0 relative">
+        <div ref={chatContainerRef} className="flex-1 p-6 overflow-y-auto space-y-6 scrollbar-hide">
           {messages.map((msg, index) => (
             <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 duration-300`}>
               <div className={`group relative max-w-[85%] ${msg.role === 'user' ? '' : 'w-full max-w-full'}`}>
@@ -316,6 +333,19 @@ export default function AIChecker() {
           )}
           <div ref={messagesEndRef} />
         </div>
+
+        {/* Scroll to Bottom Button - ChatGPT Style */}
+        {showScrollButton && (
+          <button
+            onClick={scrollToBottom}
+            className="absolute bottom-24 right-6 bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-300 p-3 rounded-full shadow-lg border border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700 transition-all animate-in fade-in zoom-in-95 duration-200"
+            title="Scroll to bottom"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="m18 15-6 6-6-6" />
+            </svg>
+          </button>
+        )}
 
         <div className="p-6 bg-gray-50/50 dark:bg-slate-900/50 border-t border-gray-100 dark:border-slate-800">
           <form onSubmit={handleSubmit} className="relative flex items-end">
