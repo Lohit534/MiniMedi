@@ -35,11 +35,17 @@ const Navbar = ({ theme, toggleTheme, token }) => {
       <nav className="border-b border-gray-100 dark:border-slate-800 py-4 px-6 fixed w-full top-0 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md z-50 transition-colors duration-300">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <Link to="/" className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-                <path d="M11.25 4.75a1.25 1.25 0 0 0-2.5 0v3.5a1.25 1.25 0 0 0 2.5 0v-3.5ZM13.75 4.75a1.25 1.25 0 0 1 2.5 0v3.5a1.25 1.25 0 0 1-2.5 0v-3.5Z" />
-                <path fillRule="evenodd" d="M12.5 2.5a2.75 2.75 0 0 0-2.75 2.25H9.5A2.75 2.75 0 0 0 6.75 7.5v.75a6.75 6.75 0 0 0 10.5 5.618V18.15a2.1 2.1 0 0 1-1.528 1.996.75.75 0 0 0-.203 1.487A3.6 3.6 0 0 0 19.1 18.15V13.5a.75.75 0 0 0-1.5 0v4.65a2.1 2.1 0 0 1-4.2 0v-4.282A6.75 6.75 0 0 0 18.25 8.25V7.5A2.75 2.75 0 0 0 15.5 4.75h-.25A2.75 2.75 0 0 0 12.5 2.5Zm-2.75 5a1.25 1.25 0 0 1 1.25-1.25h3a1.25 1.25 0 0 1 1.25 1.25v.75a2.75 2.75 0 0 1-5.5 0v-.75Z" clipRule="evenodd" />
-              </svg>
+            <div className="flex items-center flex-shrink-0 gap-3">
+              {/* Stethoscope Icon */}
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl flex items-center justify-center shadow-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M11 2v2" />
+                  <path d="M5 2v2" />
+                  <path d="M5 3a4 4 0 0 0 0 8h6a4 4 0 0 0 0-8" />
+                  <path d="M12 11v5a4 4 0 0 0 8 0v-1a2 2 0 1 0-4 0v1" />
+                </svg>
+              </div>
+              <span className="font-bold text-xl leading-none dark:text-white">MiniMedi</span>
             </div>
             <div className="flex flex-col">
               <span className="font-bold text-xl leading-none dark:text-white">MiniMedi</span>
