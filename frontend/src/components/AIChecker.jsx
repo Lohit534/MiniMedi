@@ -154,11 +154,17 @@ export default function AIChecker() {
       setShowScrollButton(!isAtBottom);
     };
 
-    // Check initial scroll position
-    handleScroll();
+    // Check initial scroll position after a brief delay to ensure content is loaded
+    const initialCheck = setTimeout(() => {
+      handleScroll();
+    }, 100);
 
     chatContainer.addEventListener('scroll', handleScroll);
-    return () => chatContainer.removeEventListener('scroll', handleScroll);
+
+    return () => {
+      clearTimeout(initialCheck);
+      chatContainer.removeEventListener('scroll', handleScroll);
+    };
   }, [messages]);
 
   const handleSubmit = async (e) => {
