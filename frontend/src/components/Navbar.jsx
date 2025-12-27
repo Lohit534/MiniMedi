@@ -35,17 +35,13 @@ const Navbar = ({ theme, toggleTheme, token }) => {
       <nav className="border-b border-gray-100 dark:border-slate-800 py-4 px-6 fixed w-full top-0 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md z-50 transition-colors duration-300">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <Link to="/" className="flex items-center gap-3">
-            <div className="flex items-center flex-shrink-0 gap-3">
-              {/* Stethoscope Icon */}
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl flex items-center justify-center shadow-lg">
-                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M11 2v2" />
-                  <path d="M5 2v2" />
-                  <path d="M5 3a4 4 0 0 0 0 8h6a4 4 0 0 0 0-8" />
-                  <path d="M12 11v5a4 4 0 0 0 8 0v-1a2 2 0 1 0-4 0v1" />
-                </svg>
-              </div>
-              <span className="font-bold text-xl leading-none dark:text-white">MiniMedi</span>
+            <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M11 2v2" />
+                <path d="M5 2v2" />
+                <path d="M5 3a4 4 0 0 0 0 8h6a4 4 0 0 0 0-8" />
+                <path d="M12 11v5a4 4 0 0 0 8 0v-1a2 2 0 1 0-4 0v1" />
+              </svg>
             </div>
             <div className="flex flex-col">
               <span className="font-bold text-xl leading-none dark:text-white">MiniMedi</span>
