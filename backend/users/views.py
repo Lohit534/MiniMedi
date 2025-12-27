@@ -34,12 +34,12 @@ def is_strong_password(password):
     return True, ""
 
 def create_jwt(user):
-    # Create JWT token with extended expiration (30 days for 24/7 usage)
+    # Create JWT token with 24-hour expiration for daily usage
     payload = {
         "id": user.id,
         "username": user.username,
         "email": user.email,
-        "exp": timezone.now() + timedelta(days=30),  # Changed from hours=1 to days=30
+        "exp": timezone.now() + timedelta(days=1),  # Token valid for 24 hours
         "iat": timezone.now()
     }
     return jwt.encode(payload, settings.SECRET_KEY, algorithm="HS256")
