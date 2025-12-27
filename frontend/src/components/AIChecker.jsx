@@ -359,15 +359,18 @@ export default function AIChecker() {
 
         {/* Scroll to Bottom Button - ChatGPT Style */}
         {showScrollButton && (
-          <button
-            onClick={scrollToBottom}
-            className="absolute bottom-28 right-6 z-50 bg-white dark:bg-slate-700 text-gray-800 dark:text-white p-3.5 rounded-full shadow-2xl border-2 border-gray-300 dark:border-slate-600 hover:bg-gray-100 dark:hover:bg-slate-600 transition-all animate-in fade-in zoom-in-95 duration-200 hover:scale-110"
-            title="Scroll to bottom"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-              <path d="m18 15-6 6-6-6" />
-            </svg>
-          </button>
+          <div className="absolute bottom-32 left-1/2 -translate-x-1/2 z-[100]">
+            <button
+              onClick={scrollToBottom}
+              className="bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-2xl border-2 border-blue-400 transition-all duration-200 hover:scale-110 flex items-center gap-2 px-6"
+              title="Scroll to bottom"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <path d="m18 15-6 6-6-6" />
+              </svg>
+              <span className="font-semibold text-sm">Jump to latest</span>
+            </button>
+          </div>
         )}
 
         <div className="p-6 bg-gray-50/50 dark:bg-slate-900/50 border-t border-gray-100 dark:border-slate-800">
