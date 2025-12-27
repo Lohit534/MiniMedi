@@ -75,6 +75,7 @@ export default function History() {
   const [expandedId, setExpandedId] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalConfig, setModalConfig] = useState({ title: "", message: "", onConfirm: () => { } });
+  const [timeFilter, setTimeFilter] = useState('all'); // 'today', 'week', 'month', 'year', 'all'
 
   useEffect(() => {
     const token = getToken();
@@ -142,6 +143,40 @@ export default function History() {
     setExpandedId(expandedId === id ? null : id);
   };
 
+  // Filter entries based on selected time period
+  const filterEntriesByTime = () => {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    return entries.filter(entry => {
+      const entryDate = new Date(entry.created_at);
+
+      switch (timeFilter) {
+        case 'today':
+          return entryDate >= today;
+
+        case 'week':
+          const weekAgo = new Date(today);
+          weekAgo.setDate(weekAgo.getDate() - 7);
+          return entryDate >= weekAgo;
+
+        case 'month':
+          const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+          return entryDate >= monthStart;
+
+        case 'year':
+          const yearStart = new Date(now.getFullYear(), 0, 1);
+          return entryDate >= yearStart;
+
+        case 'all':
+        default:
+          return true;
+      }
+    });
+  };
+
+  const filteredEntries = filterEntriesByTime();
+
   if (!isAuthenticated && !isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-slate-950 flex items-center justify-center px-4 py-12">
@@ -184,8 +219,42 @@ export default function History() {
           )}
         </div>
 
+        {/* Time Filter Buttons */}
+        {entries.length > 0 && (
+          <div className="mb-6 flex flex-wrap gap-3">
+            {[
+              { value: 'today', label: 'Today' },
+              { value: 'week', label: 'This Week' },
+              { value: 'month', label: 'This Month' },
+              { value: 'year', label: 'This Year' },
+              { value: 'all', label: 'All Time' }
+            ].map(filter => (
+              <button
+                key={filter.value}
+                onClick={() => setTimeFilter(filter.value)}
+                className={`px-4 py-2 rounded-xl font-semibold text-sm transition-all shadow-sm ${timeFilter === filter.value
+                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
+                    : 'bg-white dark:bg-slate-900 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-800'
+                  }`}
+              >
+                {filter.label}
+              </button>
+            ))}
+          </div>
+        )}
+
         <div className="mb-6">
-          <p className="text-gray-400 font-medium">Total Checks: <span className="text-gray-900 dark:text-white">{entries.length}</span></p>
+          <p className="text-gray-400 font-medium">
+            {timeFilter !== 'all' ? (
+              <>
+                Showing <span className="text-gray-900 dark:text-white">{filteredEntries.length}</span> of {entries.length} checks
+              </>
+            ) : (
+              <>
+                Total Checks: <span className="text-gray-900 dark:text-white">{entries.length}</span>
+              </>
+            )}
+          </p>
         </div>
 
         {/* Entries List */}
@@ -196,9 +265,19 @@ export default function History() {
             <p className="text-gray-400 text-xl">No health checks found yet.</p>
             <Link to="/ai-checker" className="mt-4 inline-block text-blue-600 dark:text-blue-400 font-semibold hover:underline">Perform your first check →</Link>
           </div>
+        ) : filteredEntries.length === 0 ? (
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-20 text-center border-2 border-dashed border-gray-100 dark:border-slate-800">
+            <p className="text-gray-400 text-xl">No health checks found for this time period.</p>
+            <button
+              onClick={() => setTimeFilter('all')}
+              className="mt-4 inline-block text-blue-600 dark:text-blue-400 font-semibold hover:underline"
+            >
+              View all checks →
+            </button>
+          </div>
         ) : (
           <div className="space-y-6">
-            {entries.map((entry) => {
+            {filteredEntries.map((entry) => {
               const isOpen = expandedId === entry.id;
               const date = new Date(entry.created_at).toLocaleDateString('en-US', {
                 month: 'long', day: 'numeric', year: 'numeric'

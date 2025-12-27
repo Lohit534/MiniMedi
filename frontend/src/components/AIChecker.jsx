@@ -3,6 +3,108 @@ import axiosInstance from "../api/axiosInstance";
 import { getToken } from "../utils/auth";
 import { Link } from "react-router-dom";
 
+// Simple markdown-like text formatter
+const formatMessage = (text) => {
+  if (!text) return "";
+
+  // Split into lines and process
+  const lines = text.split('\n');
+  const formatted = [];
+  let inList = false;
+
+  lines.forEach((line, idx) => {
+    const trimmed = line.trim();
+
+    // Headers
+    if (trimmed.startsWith('###')) {
+      formatted.push(<h3 key={idx} className="text-lg font-bold mt-4 mb-2 text-gray-900 dark:text-white">{trimmed.replace(/^###\s*/, '')}</h3>);
+    } else if (trimmed.startsWith('##')) {
+      formatted.push(<h2 key={idx} className="text-xl font-bold mt-4 mb-2 text-gray-900 dark:text-white">{trimmed.replace(/^##\s*/, '')}</h2>);
+    } else if (trimmed.startsWith('#')) {
+      formatted.push(<h1 key={idx} className="text-2xl font-bold mt-4 mb-2 text-gray-900 dark:text-white">{trimmed.replace(/^#\s*/, '')}</h1>);
+    }
+    // Bullet points
+    else if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+      if (!inList) {
+        inList = true;
+      }
+      formatted.push(
+        <div key={idx} className="flex gap-2 my-1">
+          <span className="text-blue-500 font-bold">•</span>
+          <span>{trimmed.substring(2)}</span>
+        </div>
+      );
+    }
+    // Numbered lists
+    else if (/^\d+\.\s/.test(trimmed)) {
+      const match = trimmed.match(/^(\d+)\.\s(.+)$/);
+      if (match) {
+        formatted.push(
+          <div key={idx} className="flex gap-2 my-1">
+            <span className="text-blue-500 font-bold">{match[1]}.</span>
+            <span>{match[2]}</span>
+          </div>
+        );
+      }
+    }
+    // Bold text
+    else if (trimmed.includes('**')) {
+      const parts = trimmed.split('**');
+      formatted.push(
+        <p key={idx} className="my-2">
+          {parts.map((part, i) => i % 2 === 1 ? <strong key={i} className="font-bold">{part}</strong> : part)}
+        </p>
+      );
+    }
+    // Regular paragraph
+    else if (trimmed) {
+      inList = false;
+      formatted.push(<p key={idx} className="my-2">{line}</p>);
+    }
+    // Empty line
+    else {
+      inList = false;
+      formatted.push(<div key={idx} className="h-2" />);
+    }
+  });
+
+  return <div className="space-y-1">{formatted}</div>;
+};
+
+// Copy button component
+const CopyButton = ({ text }) => {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
+  };
+
+  return (
+    <button
+      onClick={handleCopy}
+      className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg"
+      title="Copy message"
+    >
+      {copied ? (
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-green-600">
+          <polyline points="20 6 9 17 4 12" />
+        </svg>
+      ) : (
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400 dark:text-gray-500">
+          <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+          <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+        </svg>
+      )}
+    </button>
+  );
+};
+
 export default function AIChecker() {
   const [query, setQuery] = useState("");
   const [messages, setMessages] = useState(() => {
@@ -58,12 +160,13 @@ export default function AIChecker() {
 
       setMessages(prev => [...prev, { role: "assistant", content: aiText }]);
 
+      // Store the extracted data in localStorage for later use when New Chat is clicked
       if (dataMatch) {
         try {
           const extracted = JSON.parse(dataMatch[1].trim());
           if (extracted.complete) {
-            // AUTOMATICALLY save to history once complete
-            await axiosInstance.post("/symptoms/", {
+            // Store the complete data and AI response for saving later
+            localStorage.setItem('minimedi_pending_save', JSON.stringify({
               patient_name: extracted.name || "Guest",
               title: "Health Analysis Report",
               description: extracted.symptoms || "General health inquiry",
@@ -73,7 +176,7 @@ export default function AIChecker() {
               duration: parseInt(extracted.duration) || 1,
               severity: "MEDIUM",
               risk_score: Math.floor(Math.random() * 40) + 20
-            });
+            }));
           }
         } catch (e) {
           console.error("Internal data sync error:", e);
@@ -87,7 +190,33 @@ export default function AIChecker() {
     }
   };
 
-  const resetChat = () => {
+  const resetChat = async () => {
+    // Save the conversation to history before resetting
+    const pendingSave = localStorage.getItem('minimedi_pending_save');
+    if (pendingSave) {
+      try {
+        const saveData = JSON.parse(pendingSave);
+
+        // Create a summary of the entire conversation
+        const conversationSummary = messages
+          .filter(msg => msg.role === 'assistant')
+          .map(msg => msg.content)
+          .join('\n\n');
+
+        // Save to history with the full conversation
+        await axiosInstance.post("/symptoms/", {
+          ...saveData,
+          ai_analysis: conversationSummary // Save entire conversation
+        });
+
+        // Clear the pending save
+        localStorage.removeItem('minimedi_pending_save');
+      } catch (e) {
+        console.error("Failed to save conversation to history:", e);
+      }
+    }
+
+    // Reset the chat
     localStorage.removeItem("minimedi_chat_session");
     setMessages([
       { role: "assistant", content: "Hello! I'm MiniMedi, your AI Health Assistant. 👋 Before we begin, may I know your name?" }
@@ -113,58 +242,73 @@ export default function AIChecker() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8 h-[calc(100vh-120px)] min-h-[500px] flex flex-col">
+    <div className="max-w-5xl mx-auto px-4 py-8 h-[calc(100vh-120px)] min-h-[500px] flex flex-col">
       {/* Back Button */}
       <div className="mb-4 md:hidden">
-        <Link to="/" className="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full text-sm font-bold text-gray-600 shadow-sm border border-gray-100 hover:bg-gray-50 transition-all active:scale-95">
+        <Link to="/" className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-900 rounded-full text-sm font-bold text-gray-600 dark:text-gray-400 shadow-sm border border-gray-100 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800 transition-all active:scale-95">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
           Back
         </Link>
       </div>
 
-      <div className="mb-6 flex items-center justify-between bg-white/80 dark:bg-slate-900/80 backdrop-blur-md p-5 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-800 flex-shrink-0">
+      <div className="mb-6 flex items-center justify-between bg-gradient-to-r from-blue-50 to-white dark:from-slate-900 dark:to-slate-900/80 backdrop-blur-md p-5 rounded-3xl shadow-sm border border-blue-100 dark:border-slate-800 flex-shrink-0">
         <div className="flex items-center gap-4">
-          <div className="w-10 h-10 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-blue-200 dark:shadow-blue-900/20">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" /><path d="M19 10v2a7 7 0 0 1-14 0v-2" /></svg>
+          <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-blue-200 dark:shadow-blue-900/20">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" /><path d="M19 10v2a7 7 0 0 1-14 0v-2" /></svg>
           </div>
           <div>
-            <h2 className="text-lg font-bold text-gray-900 dark:text-white">MiniMedi AI</h2>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">MiniMedi AI</h2>
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-              <p className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider">Dynamic Consultation Active</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold">Online</p>
             </div>
           </div>
         </div>
         <button
           onClick={resetChat}
-          className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 rounded-xl hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-all"
+          className="flex items-center gap-2 px-4 py-2.5 text-sm font-bold text-blue-600 dark:text-blue-400 bg-white dark:bg-slate-800 rounded-xl hover:bg-blue-50 dark:hover:bg-slate-700 transition-all border border-blue-100 dark:border-slate-700 shadow-sm"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" /><path d="M21 3v5" /><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" /><path d="M3 21v-5" /></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" /><path d="M21 3v5h-5" /><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" /><path d="M8 16H3v5" /></svg>
           New Chat
         </button>
       </div>
 
-      <div className="flex-1 bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-xl border border-gray-100 dark:border-slate-800 flex flex-col overflow-hidden min-h-0">
+      <div className="flex-1 bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-gray-100 dark:border-slate-800 flex flex-col overflow-hidden min-h-0">
         <div className="flex-1 p-6 overflow-y-auto space-y-6 scrollbar-hide">
           {messages.map((msg, index) => (
-            <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2`}>
-              <div className={`max-w-[80%] rounded-2xl px-5 py-3.5 shadow-sm ${msg.role === 'user'
-                ? 'bg-blue-600 text-white rounded-tr-none'
-                : 'bg-gray-50 dark:bg-slate-800 border border-gray-100 dark:border-slate-700 text-gray-800 dark:text-gray-200 rounded-tl-none whitespace-pre-wrap'
-                }`}>
-                <p className="text-[15px] leading-relaxed">{msg.content}</p>
+            <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 duration-300`}>
+              <div className={`group relative max-w-[85%] ${msg.role === 'user' ? '' : 'w-full max-w-full'}`}>
+                <div className={`rounded-2xl px-5 py-4 shadow-sm ${msg.role === 'user'
+                  ? 'bg-gradient-to-br from-blue-600 to-blue-700 text-white rounded-tr-sm ml-auto'
+                  : 'bg-gray-50 dark:bg-slate-800 border border-gray-100 dark:border-slate-700 text-gray-800 dark:text-gray-200 rounded-tl-sm'
+                  }`}>
+                  {msg.role === 'assistant' && (
+                    <div className="flex items-center justify-between mb-3 pb-2 border-b border-gray-200 dark:border-slate-700">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 bg-blue-600 rounded-lg flex items-center justify-center">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" /><path d="M19 10v2a7 7 0 0 1-14 0v-2" /></svg>
+                        </div>
+                        <span className="text-sm font-bold text-gray-900 dark:text-white">MiniMedi AI</span>
+                      </div>
+                      <CopyButton text={msg.content} />
+                    </div>
+                  )}
+                  <div className={`text-[15px] leading-relaxed ${msg.role === 'user' ? 'font-medium' : ''}`}>
+                    {msg.role === 'assistant' ? formatMessage(msg.content) : msg.content}
+                  </div>
+                </div>
               </div>
             </div>
           ))}
           {isLoading && (
-            <div className="flex justify-start">
-              <div className="bg-gray-50 dark:bg-slate-800 border border-gray-100 dark:border-slate-700 rounded-2xl px-5 py-3 flex items-center gap-3">
-                <div className="flex gap-1">
-                  <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce"></div>
-                  <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                  <div className="w-1.5 h-1.5 bg-blue-600 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+            <div className="flex justify-start animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <div className="bg-gray-50 dark:bg-slate-800 border border-gray-100 dark:border-slate-700 rounded-2xl rounded-tl-sm px-5 py-4 flex items-center gap-3">
+                <div className="flex gap-1.5">
+                  <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
+                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                  <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
                 </div>
-                <span className="text-[10px] uppercase font-black text-blue-600 dark:text-blue-400 tracking-widest leading-none">MiniMedi is thinking</span>
+                <span className="text-sm font-semibold text-blue-600 dark:text-blue-400">MiniMedi is thinking...</span>
               </div>
             </div>
           )}
@@ -189,15 +333,15 @@ export default function AIChecker() {
                   handleSubmit(e);
                 }
               }}
-              placeholder="Tell me more or ask a question..."
-              className="w-full bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl px-6 py-4 pr-16 focus:outline-none focus:ring-4 focus:ring-blue-500/5 dark:focus:ring-blue-500/10 focus:border-blue-600 dark:focus:border-blue-500 transition-all text-gray-900 dark:text-white shadow-sm resize-none overflow-hidden min-h-[56px] max-h-[200px]"
+              placeholder="Type your message..."
+              className="w-full bg-white dark:bg-slate-800 border-2 border-gray-200 dark:border-slate-700 rounded-2xl px-6 py-4 pr-16 focus:outline-none focus:ring-4 focus:ring-blue-500/10 dark:focus:ring-blue-500/20 focus:border-blue-600 dark:focus:border-blue-500 transition-all text-gray-900 dark:text-white shadow-sm resize-none overflow-hidden min-h-[56px] max-h-[200px]"
               disabled={isLoading}
               rows={1}
             />
             <button
               type="submit"
               disabled={isLoading || !query.trim()}
-              className="absolute right-2 bottom-2 bg-blue-600 text-white p-3 rounded-xl hover:bg-blue-700 transition-all disabled:opacity-30 shadow-md shadow-blue-100 dark:shadow-blue-900/20"
+              className="absolute right-2 bottom-2 bg-gradient-to-br from-blue-600 to-blue-700 text-white p-3 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all disabled:opacity-30 disabled:cursor-not-allowed shadow-lg shadow-blue-200 dark:shadow-blue-900/20 active:scale-95"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" /></svg>
             </button>
