@@ -290,16 +290,16 @@ export default function AIChecker() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8 h-[calc(100vh-120px)] min-h-[500px] flex flex-col">
+    <div className="max-w-7xl mx-auto px-0 md:px-4 py-0 md:py-4 h-[calc(100vh-72px)] flex flex-col">
       {/* Back Button */}
-      <div className="mb-4 md:hidden">
+      <div className="mb-3 md:mb-4 px-4 md:px-0 md:hidden">
         <Link to="/" className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-900 rounded-full text-sm font-bold text-gray-600 dark:text-gray-400 shadow-sm border border-gray-100 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800 transition-all active:scale-95">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
           Back
         </Link>
       </div>
 
-      <div className="mb-6 flex items-center justify-between bg-gradient-to-r from-blue-50 to-white dark:from-slate-900 dark:to-slate-900/80 backdrop-blur-md p-5 rounded-3xl shadow-sm border border-blue-100 dark:border-slate-800 flex-shrink-0">
+      <div className="mb-3 md:mb-6 mx-4 md:mx-0 flex items-center justify-between bg-gradient-to-r from-blue-50 to-white dark:from-slate-900 dark:to-slate-900/80 backdrop-blur-md p-3 md:p-5 rounded-2xl md:rounded-3xl shadow-sm border border-blue-100 dark:border-slate-800 flex-shrink-0">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-blue-200 dark:shadow-blue-900/20">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" /><path d="M19 10v2a7 7 0 0 1-14 0v-2" /></svg>
@@ -321,8 +321,8 @@ export default function AIChecker() {
         </button>
       </div>
 
-      <div className="flex-1 bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-gray-100 dark:border-slate-800 flex flex-col overflow-hidden min-h-0 relative">
-        <div ref={chatContainerRef} className="flex-1 p-6 overflow-y-auto space-y-6 scrollbar-hide">
+      <div className="flex-1 bg-white dark:bg-slate-900 rounded-none md:rounded-3xl shadow-xl border-t border-b md:border border-gray-100 dark:border-slate-800 flex flex-col overflow-hidden min-h-0 relative">
+        <div ref={chatContainerRef} className="flex-1 p-3 md:p-6 overflow-y-auto space-y-4 md:space-y-6 scrollbar-hide">
           {messages.map((msg, index) => (
             <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 duration-300`}>
               <div className={`group relative max-w-[85%] ${msg.role === 'user' ? '' : 'w-full max-w-full'}`}>
@@ -378,7 +378,7 @@ export default function AIChecker() {
           </div>
         )}
 
-        <div className="p-6 bg-gray-50/50 dark:bg-slate-900/50 border-t border-gray-100 dark:border-slate-800">
+        <div className="p-3 md:p-6 bg-gray-50/50 dark:bg-slate-900/50 border-t border-gray-100 dark:border-slate-800">
           <form onSubmit={handleSubmit} className="relative flex items-end">
             <textarea
               autoFocus
@@ -397,7 +397,7 @@ export default function AIChecker() {
                 }
               }}
               placeholder="Type your message..."
-              className="w-full bg-white dark:bg-slate-800 border-2 border-gray-200 dark:border-slate-700 rounded-2xl px-6 py-4 pr-16 focus:outline-none focus:ring-4 focus:ring-blue-500/10 dark:focus:ring-blue-500/20 focus:border-blue-600 dark:focus:border-blue-500 transition-all text-gray-900 dark:text-white shadow-sm resize-none overflow-hidden min-h-[56px] max-h-[200px]"
+              className="w-full bg-white dark:bg-slate-800 border-2 border-gray-200 dark:border-slate-700 rounded-2xl px-4 md:px-6 py-3 md:py-4 pr-14 md:pr-16 focus:outline-none focus:ring-4 focus:ring-blue-500/10 dark:focus:ring-blue-500/20 focus:border-blue-600 dark:focus:border-blue-500 transition-all text-gray-900 dark:text-white shadow-sm resize-none overflow-hidden min-h-[52px] md:min-h-[56px] max-h-[200px]"
               disabled={isLoading}
               rows={1}
             />
