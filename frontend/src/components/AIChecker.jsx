@@ -154,12 +154,15 @@ export default function AIChecker() {
       setShowScrollButton(!isAtBottom);
     };
 
-    // Check initial scroll position after a brief delay to ensure content is loaded
+    // Check initial scroll position after content loads
     const initialCheck = setTimeout(() => {
       handleScroll();
-    }, 100);
+    }, 200);
 
     chatContainer.addEventListener('scroll', handleScroll);
+
+    // Also check when messages change (user might be at bottom)
+    handleScroll();
 
     return () => {
       clearTimeout(initialCheck);
@@ -365,7 +368,7 @@ export default function AIChecker() {
 
         {/* Scroll to Bottom Button - ChatGPT Style */}
         {showScrollButton && (
-          <div className="absolute bottom-32 left-1/2 -translate-x-1/2 z-[100]">
+          <div className="absolute bottom-32 left-1/2 -translate-x-1/2 z-40">
             <button
               onClick={scrollToBottom}
               className="bg-gray-400 hover:bg-gray-500 text-white p-2 rounded-full shadow-lg border border-gray-300 transition-all duration-200 hover:scale-110"
