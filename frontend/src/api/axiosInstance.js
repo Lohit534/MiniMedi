@@ -21,8 +21,13 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response) => response, // Pass through successful responses
   (error) => {
+    // Get the request URL to check if it's an auth endpoint
+    const requestUrl = error.config?.url || '';
+    const isAuthEndpoint = requestUrl.includes('/login') || requestUrl.includes('/signup') || requestUrl.includes('/google-login');
+
     // Check if error is due to expired/invalid token (401 or 403)
-    if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+    // Skip auto-logout for auth endpoints (login/signup pages handle their own errors)
+    if (!isAuthEndpoint && error.response && (error.response.status === 401 || error.response.status === 403)) {
       // Check if error message indicates token expiration
       const errorMessage = error.response.data?.error || '';
       if (errorMessage.includes('token') || errorMessage.includes('expired') || errorMessage.includes('Invalid')) {
