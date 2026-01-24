@@ -192,9 +192,12 @@ export default function AIChecker() {
 
       // Auto-save or update on EVERY AI response (not just when complete)
       if (dataMatch) {
+        console.log('✅ DATA block found in AI response');
         try {
           const extracted = JSON.parse(dataMatch[1].trim());
+          console.log('📊 Extracted data:', extracted);
           const savedRecordId = localStorage.getItem('minimedi_saved_record_id');
+          console.log('💾 Saved record ID from localStorage:', savedRecordId);
 
           // Check if we already have a saved record for this conversation
           if (savedRecordId) {
@@ -204,7 +207,8 @@ export default function AIChecker() {
               .map(msg => msg.content)
               .join('\n\n');
 
-            await axiosInstance.patch(`/symptoms/${savedRecordId}/`, {
+            console.log('🔄 Updating existing record:', savedRecordId);
+            const updateResponse = await axiosInstance.patch(`/symptoms/${savedRecordId}/`, {
               ai_analysis: conversationSummary,
               // Update other fields if available
               ...(extracted.name && { patient_name: extracted.name }),
@@ -213,8 +217,20 @@ export default function AIChecker() {
               ...(extracted.symptoms && { description: extracted.symptoms }),
               ...(extracted.duration && { duration: parseInt(extracted.duration) })
             });
+            console.log('✅ Update successful:', updateResponse.data);
           } else {
             // CREATE new record (first save)
+            console.log('🆕 Creating new record with data:', {
+              patient_name: extracted.name || "Guest",
+              title: "Health Analysis Report",
+              description: extracted.symptoms || "In progress...",
+              ai_analysis: aiText,
+              age: parseInt(extracted.age) || 0,
+              gender: extracted.gender || "Unknown",
+              duration: parseInt(extracted.duration) || 1,
+              severity: "MEDIUM",
+              risk_score: Math.floor(Math.random() * 40) + 20
+            });
             const response = await axiosInstance.post("/symptoms/", {
               patient_name: extracted.name || "Guest",
               title: "Health Analysis Report",
@@ -230,11 +246,15 @@ export default function AIChecker() {
             // Store record ID for future updates
             if (response.data && response.data.id) {
               localStorage.setItem('minimedi_saved_record_id', response.data.id.toString());
+              console.log('✅ Record created successfully. ID:', response.data.id);
             }
           }
         } catch (e) {
-          console.error("Auto-save/update error:", e);
+          console.error("❌ Auto-save/update error:", e);
+          console.error("Error details:", e.response?.data || e.message);
         }
+      } else {
+        console.log('⚠️ No DATA block found in AI response. Response:', botResponse.substring(0, 200));
       }
     } catch (error) {
       console.error("Consultation failed", error);

@@ -62,16 +62,18 @@ const Login = () => {
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950 flex items-start justify-center pt-32 pb-20 px-4 sm:px-6 lg:px-8 font-sans transition-colors duration-500 relative overflow-hidden">
       {/* Background Decorations */}
-      <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden">
+      {/* Background Decorations - Hidden on Mobile */}
+      <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden hidden md:block">
         <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-gray-50 dark:bg-slate-900/10 rounded-full blur-[100px] opacity-60" />
         <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-slate-50 dark:bg-slate-900/10 rounded-full blur-[100px] opacity-60" />
       </div>
 
       <div className="max-w-md w-full space-y-6 relative z-10">
         {/* Back Button - Enhanced Visibility */}
+        {/* Back Button - Visible on Mobile */}
         <Link
           to="/"
-          className="absolute -top-12 left-0 hidden max-md:flex items-center gap-2.5 px-3 py-1.5 rounded-2xl bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 shadow-sm text-[13px] font-bold text-gray-700 dark:text-gray-300 hover:text-black dark:hover:text-white hover:border-black dark:hover:border-white transition-all group outline-none"
+          className="absolute -top-12 left-0 flex md:hidden items-center gap-2.5 px-3 py-1.5 rounded-2xl bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 shadow-sm text-[13px] font-bold text-gray-700 dark:text-gray-300 hover:text-black dark:hover:text-white hover:border-black dark:hover:border-white transition-all group outline-none"
         >
           <div className="p-0.5 rounded-full bg-gray-100 dark:bg-slate-800 group-hover:bg-black group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-black transition-all">
             <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
