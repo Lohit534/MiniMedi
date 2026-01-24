@@ -25,13 +25,15 @@ const Layout = ({ theme, toggleTheme, isChatbotOpen, setIsChatbotOpen }) => {
 
   // Hide MiniChatbot on AI checker page
   const showMiniChatbot = token && location.pathname !== '/ai-checker';
-  // Hide Footer on AI checker page
-  const showFooter = location.pathname !== '/ai-checker';
+  // Hide Footer on AI checker, login, and signup pages
+  const showFooter = !['/ai-checker', '/login', '/signup'].includes(location.pathname);
+  // Hide Navbar on login and signup pages
+  const showNavbar = !['/login', '/signup'].includes(location.pathname);
 
   return (
     <div className="flex flex-col min-h-screen transition-colors duration-300 dark:bg-slate-950">
-      <Navbar theme={theme} toggleTheme={toggleTheme} token={token} />
-      <main className="flex-grow pt-[72px]">
+      {showNavbar && <Navbar theme={theme} toggleTheme={toggleTheme} token={token} />}
+      <main className={`flex-grow ${showNavbar ? 'pt-[72px]' : ''}`}>
         <Routes>
           <Route path="/" element={<HomePage setIsChatbotOpen={setIsChatbotOpen} />} />
           <Route path="/login" element={<Login />} />
