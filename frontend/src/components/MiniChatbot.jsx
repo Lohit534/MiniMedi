@@ -24,7 +24,7 @@ const MiniChatbot = ({ isOpen, setIsOpen }) => {
     ];
 
     const handleReport = (subject) => {
-        const email = "payyamasidhartha12@gmail.com"; // User's email
+        const email = "lohithpeyyala@gmail.com"; // Support email
         const body = `Hi Team,\n\nI am facing an issue with the MiniChatbot.\n\nIssue Details:\n[Please describe your issue here]\n\nSystem Info:\nUser Agent: ${navigator.userAgent}`;
         window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     };
