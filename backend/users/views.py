@@ -176,6 +176,10 @@ Description:
 {description}
         """
 
+        print(f"DEBUG: Attempting to send report from {email} with subject {subject}")
+        print(f"DEBUG: Using Host User: {settings.EMAIL_HOST_USER}") # Log user (safe)
+        # Do NOT log password!
+
         try:
             send_mail(
                 subject=f"Minimedi Report: {subject}",
@@ -184,6 +188,11 @@ Description:
                 recipient_list=["lohithpeyyala@gmail.com"],
                 fail_silently=False,
             )
+            print("DEBUG: Email sent successfully")
             return Response({"message": "Report sent successfully"}, status=status.HTTP_200_OK)
         except Exception as e:
+            print(f"ERROR: Failed to send email. Exception Type: {type(e).__name__}")
+            print(f"ERROR: Exception Details: {str(e)}")
+            import traceback
+            traceback.print_exc()
             return Response({"error": f"Failed to send email: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
