@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import axiosInstance from '../api/axiosInstance';
+import { toast } from 'react-toastify';
 
 const MiniChatbot = ({ isOpen, setIsOpen }) => {
     const initialMessages = [
@@ -9,19 +11,44 @@ const MiniChatbot = ({ isOpen, setIsOpen }) => {
     const [input, setInput] = useState('');
     const [showReport, setShowReport] = useState(false);
 
-
+    // Report Form State
+    const [reportStep, setReportStep] = useState('select'); // 'select' | 'form'
+    const [selectedSubject, setSelectedSubject] = useState('');
+    const [reportData, setReportData] = useState({ email: '', description: '' });
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const reportIssues = [
-        { label: "Chatbot Not Working", subject: "Issue Report: Chatbot Not Working" },
-        { label: "Server Connection Error", subject: "Issue Report: Server Connection Error" },
-        { label: "UI/Display Issue", subject: "Issue Report: UI/Display Issue" },
-        { label: "Other Issue", subject: "Issue Report: General Issue" }
+        { label: "Chatbot Not Working", subject: "Chatbot Not Working" },
+        { label: "Server Connection Error", subject: "Server Connection Error" },
+        { label: "UI/Display Issue", subject: "UI/Display Issue" },
+        { label: "Other Issue", subject: "General Issue" }
     ];
 
-    const handleReport = (subject) => {
-        const email = "lohithpeyyala@gmail.com"; // Support email
-        const body = `Hi Team,\n\nI am facing an issue with the MiniChatbot.\n\nIssue Details:\n[Please describe your issue here]\n\nSystem Info:\nUser Agent: ${navigator.userAgent}`;
-        window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    const handleSubjectSelect = (subject) => {
+        setSelectedSubject(subject);
+        setReportStep('form');
+    };
+
+    const handleReportSubmit = async (e) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+        try {
+            await axiosInstance.post('/users/report-issue/', {
+                subject: selectedSubject,
+                email: reportData.email,
+                description: reportData.description,
+                userAgent: navigator.userAgent
+            });
+            toast.success("Report sent successfully!");
+            setShowReport(false);
+            setReportStep('select');
+            setReportData({ email: '', description: '' });
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to send report. Please try again.");
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     useEffect(() => {
@@ -98,24 +125,72 @@ const MiniChatbot = ({ isOpen, setIsOpen }) => {
                                     <svg className="text-red-500" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
                                     Report an Issue
                                 </h4>
-                                <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
-                                    Please select the type of issue you're experiencing. This will open your email client to send a report to our support team.
-                                </p>
-                                <div className="space-y-2">
-                                    {reportIssues.map((issue, index) => (
-                                        <button
-                                            key={index}
-                                            onClick={() => handleReport(issue.subject)}
-                                            className="w-full text-left px-4 py-3 rounded-xl text-sm font-medium bg-gray-50 dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-all flex justify-between items-center group border border-transparent hover:border-blue-100 dark:hover:border-blue-800/50"
-                                        >
-                                            {issue.label}
-                                            <svg className="opacity-0 group-hover:opacity-100 transition-opacity text-blue-500" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>
-                                        </button>
-                                    ))}
-                                </div>
+
+                                {reportStep === 'select' ? (
+                                    <>
+                                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
+                                            Please select the type of issue you're experiencing.
+                                        </p>
+                                        <div className="space-y-2">
+                                            {reportIssues.map((issue, index) => (
+                                                <button
+                                                    key={index}
+                                                    onClick={() => handleSubjectSelect(issue.subject)}
+                                                    className="w-full text-left px-4 py-3 rounded-xl text-sm font-medium bg-gray-50 dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-all flex justify-between items-center group border border-transparent hover:border-blue-100 dark:hover:border-blue-800/50"
+                                                >
+                                                    {issue.label}
+                                                    <svg className="opacity-0 group-hover:opacity-100 transition-opacity text-blue-500" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </>
+                                ) : (
+                                    <form onSubmit={handleReportSubmit} className="space-y-3">
+                                        <div className="text-sm font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-3 py-2 rounded-lg mb-2">
+                                            Topic: {selectedSubject}
+                                        </div>
+                                        <div>
+                                            <input
+                                                type="email"
+                                                required
+                                                placeholder="Your Email"
+                                                value={reportData.email}
+                                                onChange={(e) => setReportData({ ...reportData, email: e.target.value })}
+                                                className="w-full px-3 py-2 rounded-lg bg-gray-50 dark:bg-slate-800 border border-gray-100 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                                            />
+                                        </div>
+                                        <div>
+                                            <textarea
+                                                required
+                                                rows="4"
+                                                placeholder="Describe the issue..."
+                                                value={reportData.description}
+                                                onChange={(e) => setReportData({ ...reportData, description: e.target.value })}
+                                                className="w-full px-3 py-2 rounded-lg bg-gray-50 dark:bg-slate-800 border border-gray-100 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 resize-none"
+                                            ></textarea>
+                                        </div>
+                                        <div className="flex gap-2 pt-1">
+                                            <button
+                                                type="button"
+                                                onClick={() => setReportStep('select')}
+                                                className="flex-1 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                                            >
+                                                Back
+                                            </button>
+                                            <button
+                                                type="submit"
+                                                disabled={isSubmitting}
+                                                className="flex-[2] py-2 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                                            >
+                                                {isSubmitting ? 'Sending...' : 'Send Report'}
+                                            </button>
+                                        </div>
+                                    </form>
+                                )}
+
                                 <button
-                                    onClick={() => setShowReport(false)}
-                                    className="mt-4 w-full py-2 text-xs font-semibold text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                                    onClick={() => { setShowReport(false); setReportStep('select'); }}
+                                    className="mt-4 w-full py-2 text-xs font-semibold text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 border-t border-gray-100 dark:border-slate-800 pt-3"
                                 >
                                     Cancel & Return to Chat
                                 </button>

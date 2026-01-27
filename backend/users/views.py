@@ -10,6 +10,7 @@ import requests
 from django.conf import settings
 from django.utils import timezone
 from django.db import IntegrityError
+from django.core.mail import send_mail
 
 import re
 
@@ -151,3 +152,38 @@ class GoogleLoginView(APIView):
 
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class ReportIssueView(APIView):
+    def post(self, request):
+        data = request.data
+        subject = data.get("subject", "Issue Report")
+        email = data.get("email", "Anonymous")
+        description = data.get("description", "")
+        user_agent = data.get("userAgent", "Unknown")
+
+        if not description:
+            return Response({"error": "Description is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Construct email body
+        email_body = f"""
+New Issue Report
+
+Subject: {subject}
+From: {email}
+User Agent: {user_agent}
+
+Description:
+{description}
+        """
+
+        try:
+            send_mail(
+                subject=f"Minimedi Report: {subject}",
+                message=email_body,
+                from_email=settings.EMAIL_HOST_USER,
+                recipient_list=["lohithpeyyala@gmail.com"],
+                fail_silently=False,
+            )
+            return Response({"message": "Report sent successfully"}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": f"Failed to send email: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
