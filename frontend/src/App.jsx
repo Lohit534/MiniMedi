@@ -24,8 +24,8 @@ const Layout = ({ theme, toggleTheme, isChatbotOpen, setIsChatbotOpen }) => {
   const location = useLocation();
   const token = getToken();
 
-  // Hide MiniChatbot on AI checker page
-  const showMiniChatbot = location.pathname !== '/ai-checker';
+  // Hide MiniChatbot on AI checker, login, and signup pages
+  const showMiniChatbot = !['/ai-checker', '/login', '/signup'].includes(location.pathname);
   // Hide Footer on AI checker, login, and signup pages
   const showFooter = !['/ai-checker', '/login', '/signup'].includes(location.pathname);
   // Hide Navbar on login and signup pages

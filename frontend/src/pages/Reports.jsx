@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import axiosInstance from '../api/axiosInstance';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import ConfirmationModal from '../components/ConfirmationModal';
 
 const Reports = () => {
     const [reports, setReports] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [deleteModal, setDeleteModal] = useState({ isOpen: false, reportId: null });
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -29,16 +31,21 @@ const Reports = () => {
         }
     };
 
-    const handleDelete = async (id) => {
-        if (window.confirm("Are you sure you want to delete this report?")) {
-            try {
-                await axiosInstance.delete(`/users/reports/${id}/`);
-                setReports(reports.filter(report => report.id !== id));
-                toast.success("Report deleted successfully.");
-            } catch (error) {
-                console.error("Error deleting report:", error);
-                toast.error("Failed to delete report.");
-            }
+    const handleDeleteClick = (id) => {
+        setDeleteModal({ isOpen: true, reportId: id });
+    };
+
+    const confirmDelete = async () => {
+        const id = deleteModal.reportId;
+        try {
+            await axiosInstance.delete(`/users/reports/${id}/`);
+            setReports(reports.filter(report => report.id !== id));
+            toast.success("Report deleted successfully.");
+        } catch (error) {
+            console.error("Error deleting report:", error);
+            toast.error("Failed to delete report. Please try again.");
+        } finally {
+            setDeleteModal({ isOpen: false, reportId: null });
         }
     };
 
@@ -97,7 +104,7 @@ const Reports = () => {
                                             </td>
                                             <td className="p-4 align-top text-xs">
                                                 <button
-                                                    onClick={() => handleDelete(report.id)}
+                                                    onClick={() => handleDeleteClick(report.id)}
                                                     className="text-red-500 hover:text-red-700 font-medium transition-colors"
                                                 >
                                                     Delete
@@ -111,6 +118,14 @@ const Reports = () => {
                     )}
                 </div>
             </div>
+
+            <ConfirmationModal
+                isOpen={deleteModal.isOpen}
+                onClose={() => setDeleteModal({ isOpen: false, reportId: null })}
+                onConfirm={confirmDelete}
+                title="Delete Report"
+                message="Are you sure you want to delete this report? This action cannot be undone."
+            />
         </div>
     );
 };
