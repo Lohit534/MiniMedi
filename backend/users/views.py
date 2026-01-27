@@ -1,4 +1,6 @@
 from rest_framework.views import APIView
+from rest_framework.generics import ListAPIView
+from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model, authenticate
 from rest_framework import status
@@ -10,7 +12,8 @@ import requests
 from django.conf import settings
 from django.utils import timezone
 from django.db import IntegrityError
-from django.core.mail import send_mail
+from .models import IssueReport
+from .serializers import IssueReportSerializer
 
 import re
 
@@ -112,10 +115,16 @@ class ProfileView(APIView):
         if not decoded:
             return Response({"error": "Invalid or expired token."}, status=401)
 
+        try:
+            user = User.objects.get(username=decoded["username"])
+        except User.DoesNotExist:
+             return Response({"error": "User not found."}, status=404)
+
         return Response({
-            "username": decoded["username"],
-            "email": decoded["email"],
-            "name": User.objects.get(username=decoded["username"]).first_name
+            "username": user.username,
+            "email": user.email,
+            "name": user.first_name,
+            "isAdmin": user.is_superuser
         }, status=200)
 
 class GoogleLoginView(APIView):
@@ -155,44 +164,13 @@ class GoogleLoginView(APIView):
 
 class ReportIssueView(APIView):
     def post(self, request):
-        data = request.data
-        subject = data.get("subject", "Issue Report")
-        email = data.get("email", "Anonymous")
-        description = data.get("description", "")
-        user_agent = data.get("userAgent", "Unknown")
+        serializer = IssueReportSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "Report submitted successfully"}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        if not description:
-            return Response({"error": "Description is required"}, status=status.HTTP_400_BAD_REQUEST)
-
-        # Construct email body
-        email_body = f"""
-New Issue Report
-
-Subject: {subject}
-From: {email}
-User Agent: {user_agent}
-
-Description:
-{description}
-        """
-
-        print(f"DEBUG: Attempting to send report from {email} with subject {subject}")
-        print(f"DEBUG: Using Host User: {settings.EMAIL_HOST_USER}") # Log user (safe)
-        # Do NOT log password!
-
-        try:
-            send_mail(
-                subject=f"Minimedi Report: {subject}",
-                message=email_body,
-                from_email=settings.EMAIL_HOST_USER,
-                recipient_list=["lohithpeyyala@gmail.com"],
-                fail_silently=False,
-            )
-            print("DEBUG: Email sent successfully")
-            return Response({"message": "Report sent successfully"}, status=status.HTTP_200_OK)
-        except Exception as e:
-            print(f"ERROR: Failed to send email. Exception Type: {type(e).__name__}")
-            print(f"ERROR: Exception Details: {str(e)}")
-            import traceback
-            traceback.print_exc()
-            return Response({"error": f"Failed to send email: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+class IssueListView(ListAPIView):
+    permission_classes = [IsAdminUser]
+    queryset = IssueReport.objects.all().order_by('-created_at')
+    serializer_class = IssueReportSerializer

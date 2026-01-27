@@ -7,6 +7,7 @@ import "../index.css";
 
 const Navbar = ({ theme, toggleTheme, token }) => {
   const [username, setUsername] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -16,6 +17,7 @@ const Navbar = ({ theme, toggleTheme, token }) => {
         .then((res) => {
           const data = res.data;
           setUsername(data.name || data.username);
+          setIsAdmin(data.isAdmin);
         })
         .catch(() => {
           // toast.error("Failed to load user data.");
@@ -70,6 +72,12 @@ const Navbar = ({ theme, toggleTheme, token }) => {
               <>
                 <Link to="/ai-checker" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">AI Checker</Link>
                 <Link to="/history" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">History</Link>
+                {isAdmin && (
+                  <Link to="/reports" className="text-red-500 hover:text-red-700 font-bold transition-colors">
+                    Inbox
+                    <span className="ml-1 text-[10px] bg-red-100 dark:bg-red-900 px-1 rounded">Admin</span>
+                  </Link>
+                )}
               </>
             )}
           </div>
@@ -169,6 +177,16 @@ const Navbar = ({ theme, toggleTheme, token }) => {
                 >
                   History
                 </Link>
+
+                {isAdmin && (
+                  <Link
+                    to="/reports"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="text-4xl font-bold text-red-500 hover:text-red-400 transition-all hover:translate-x-2"
+                  >
+                    Admin Inbox
+                  </Link>
+                )}
               </>
             )}
           </div>

@@ -13,6 +13,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Navbar from "./components/Navbar";
 import History from "./pages/History";
+import Reports from "./pages/Reports";
 import AIChecker from "./components/AIChecker";
 import HomePage from "./pages/HomePage";
 import Footer from "./components/Footer";
@@ -40,6 +41,7 @@ const Layout = ({ theme, toggleTheme, isChatbotOpen, setIsChatbotOpen }) => {
           <Route path="/signup" element={<Signup />} />
           <Route path="/history" element={<History />} />
           <Route path="/ai-checker" element={<AIChecker />} />
+          <Route path="/reports" element={<Reports />} />
         </Routes>
       </main>
       {showFooter && <Footer />}
