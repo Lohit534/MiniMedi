@@ -7,6 +7,7 @@ const MiniChatbot = ({ isOpen, setIsOpen }) => {
     ];
     const [messages, setMessages] = useState(initialMessages);
     const [input, setInput] = useState('');
+    const [showReport, setShowReport] = useState(false);
 
     const suggestions = [
         "Common health tips",
@@ -15,9 +16,23 @@ const MiniChatbot = ({ isOpen, setIsOpen }) => {
         "Manage daily stress"
     ];
 
+    const reportIssues = [
+        { label: "Chatbot Not Working", subject: "Issue Report: Chatbot Not Working" },
+        { label: "Server Connection Error", subject: "Issue Report: Server Connection Error" },
+        { label: "UI/Display Issue", subject: "Issue Report: UI/Display Issue" },
+        { label: "Other Issue", subject: "Issue Report: General Issue" }
+    ];
+
+    const handleReport = (subject) => {
+        const email = "payyamasidhartha12@gmail.com"; // User's email
+        const body = `Hi Team,\n\nI am facing an issue with the MiniChatbot.\n\nIssue Details:\n[Please describe your issue here]\n\nSystem Info:\nUser Agent: ${navigator.userAgent}`;
+        window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    };
+
     useEffect(() => {
         if (isOpen) {
             setMessages(initialMessages);
+            setShowReport(false);
         }
     }, [isOpen]);
 
@@ -59,7 +74,14 @@ const MiniChatbot = ({ isOpen, setIsOpen }) => {
                                 <p className="text-[10px] text-blue-100 italic">Always here to help</p>
                             </div>
                         </div>
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={() => setShowReport(!showReport)}
+                                title="Report an Issue"
+                                className={`p-1.5 rounded-lg transition-colors ${showReport ? 'bg-white text-blue-600' : 'bg-blue-500/50 hover:bg-blue-500 text-white'}`}
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
+                            </button>
                             <Link
                                 to="/ai-checker"
                                 onClick={() => setIsOpen(false)}
@@ -74,58 +96,92 @@ const MiniChatbot = ({ isOpen, setIsOpen }) => {
                         </div>
                     </div>
 
-                    {/* Messages Area */}
-                    <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50/50 dark:bg-slate-950/50">
-                        {messages.map((m) => (
-                            <div key={m.id} className={`flex ${m.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-                                <div className={`max-w-[80%] p-3 rounded-2xl text-sm ${m.sender === 'user'
-                                    ? 'bg-blue-600 text-white rounded-tr-none shadow-md'
-                                    : 'bg-white dark:bg-slate-800 text-gray-800 dark:text-gray-200 rounded-tl-none border border-gray-100 dark:border-slate-700 shadow-sm'
-                                    }`}>
-                                    {m.text}
-                                    {m.link && (
-                                        <Link
-                                            to="/ai-checker"
-                                            onClick={() => setIsOpen(false)}
-                                            className="block mt-2 text-blue-600 dark:text-blue-400 font-bold hover:underline flex items-center gap-1"
+                    {showReport ? (
+                        <div className="flex-1 overflow-y-auto p-4 bg-gray-50/50 dark:bg-slate-950/50 animate-in fade-in zoom-in-95 duration-200">
+                            <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-slate-800">
+                                <h4 className="font-semibold text-gray-800 dark:text-gray-200 mb-2 flex items-center gap-2">
+                                    <svg className="text-red-500" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
+                                    Report an Issue
+                                </h4>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
+                                    Please select the type of issue you're experiencing. This will open your email client to send a report to our support team.
+                                </p>
+                                <div className="space-y-2">
+                                    {reportIssues.map((issue, index) => (
+                                        <button
+                                            key={index}
+                                            onClick={() => handleReport(issue.subject)}
+                                            className="w-full text-left px-4 py-3 rounded-xl text-sm font-medium bg-gray-50 dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-all flex justify-between items-center group border border-transparent hover:border-blue-100 dark:hover:border-blue-800/50"
                                         >
-                                            Open AI Checker
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
-                                        </Link>
-                                    )}
+                                            {issue.label}
+                                            <svg className="opacity-0 group-hover:opacity-100 transition-opacity text-blue-500" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>
+                                        </button>
+                                    ))}
                                 </div>
-                            </div>
-                        ))}
-                    </div>
-
-                    {/* Suggestions */}
-                    {messages.length === 1 && (
-                        <div className="px-4 pb-2 flex flex-wrap gap-2 animate-in fade-in duration-500">
-                            {suggestions.map((s, i) => (
                                 <button
-                                    key={i}
-                                    onClick={() => sendMessage(s)}
-                                    className="text-[10px] font-bold px-3 py-1.5 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-all active:scale-95"
+                                    onClick={() => setShowReport(false)}
+                                    className="mt-4 w-full py-2 text-xs font-semibold text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                                 >
-                                    {s}
+                                    Cancel & Return to Chat
                                 </button>
-                            ))}
+                            </div>
                         </div>
-                    )}
+                    ) : (
+                        <>
+                            {/* Messages Area */}
+                            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50/50 dark:bg-slate-950/50">
+                                {messages.map((m) => (
+                                    <div key={m.id} className={`flex ${m.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+                                        <div className={`max-w-[80%] p-3 rounded-2xl text-sm ${m.sender === 'user'
+                                            ? 'bg-blue-600 text-white rounded-tr-none shadow-md'
+                                            : 'bg-white dark:bg-slate-800 text-gray-800 dark:text-gray-200 rounded-tl-none border border-gray-100 dark:border-slate-700 shadow-sm'
+                                            }`}>
+                                            {m.text}
+                                            {m.link && (
+                                                <Link
+                                                    to="/ai-checker"
+                                                    onClick={() => setIsOpen(false)}
+                                                    className="block mt-2 text-blue-600 dark:text-blue-400 font-bold hover:underline flex items-center gap-1"
+                                                >
+                                                    Open AI Checker
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                                                </Link>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
 
-                    {/* Input Area */}
-                    <form onSubmit={handleSend} className="p-4 bg-white dark:bg-slate-900 border-t border-gray-100 dark:border-slate-800 flex gap-2">
-                        <input
-                            type="text"
-                            value={input}
-                            onChange={(e) => setInput(e.target.value)}
-                            placeholder="Type a message..."
-                            className="flex-1 px-4 py-2 bg-gray-100 dark:bg-slate-800 text-gray-900 dark:text-white rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
-                        />
-                        <button type="submit" className="bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 transition-colors shadow-md">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-                        </button>
-                    </form>
+                            {/* Suggestions */}
+                            {messages.length === 1 && (
+                                <div className="px-4 pb-2 flex flex-wrap gap-2 animate-in fade-in duration-500">
+                                    {suggestions.map((s, i) => (
+                                        <button
+                                            key={i}
+                                            onClick={() => sendMessage(s)}
+                                            className="text-[10px] font-bold px-3 py-1.5 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-all active:scale-95"
+                                        >
+                                            {s}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+
+                            {/* Input Area */}
+                            <form onSubmit={handleSend} className="p-4 bg-white dark:bg-slate-900 border-t border-gray-100 dark:border-slate-800 flex gap-2">
+                                <input
+                                    type="text"
+                                    value={input}
+                                    onChange={(e) => setInput(e.target.value)}
+                                    placeholder="Type a message..."
+                                    className="flex-1 px-4 py-2 bg-gray-100 dark:bg-slate-800 text-gray-900 dark:text-white rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
+                                />
+                                <button type="submit" className="bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 transition-colors shadow-md">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                                </button>
+                            </form>
+                        </>
+                    )}
                 </div>
             )}
 
@@ -138,7 +194,7 @@ const MiniChatbot = ({ isOpen, setIsOpen }) => {
                 {isOpen ? (
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 ) : (
-                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2-2z"></path></svg>
                 )}
             </button>
         </div>
