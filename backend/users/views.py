@@ -1,5 +1,5 @@
 from rest_framework.views import APIView
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListAPIView, RetrieveDestroyAPIView
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model, authenticate
@@ -173,4 +173,9 @@ class ReportIssueView(APIView):
 class IssueListView(ListAPIView):
     permission_classes = [IsAdminUser]
     queryset = IssueReport.objects.all().order_by('-created_at')
+    serializer_class = IssueReportSerializer
+
+class IssueDetailView(RetrieveDestroyAPIView):
+    permission_classes = [IsAdminUser]
+    queryset = IssueReport.objects.all()
     serializer_class = IssueReportSerializer

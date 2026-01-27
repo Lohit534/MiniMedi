@@ -29,6 +29,19 @@ const Reports = () => {
         }
     };
 
+    const handleDelete = async (id) => {
+        if (window.confirm("Are you sure you want to delete this report?")) {
+            try {
+                await axiosInstance.delete(`/users/reports/${id}/`);
+                setReports(reports.filter(report => report.id !== id));
+                toast.success("Report deleted successfully.");
+            } catch (error) {
+                console.error("Error deleting report:", error);
+                toast.error("Failed to delete report.");
+            }
+        }
+    };
+
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-slate-900">
@@ -57,6 +70,7 @@ const Reports = () => {
                                         <th className="p-4 font-semibold">Description</th>
                                         <th className="p-4 font-semibold">Date</th>
                                         <th className="p-4 font-semibold">User Agent</th>
+                                        <th className="p-4 font-semibold">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-100 dark:divide-slate-800">
@@ -80,6 +94,14 @@ const Reports = () => {
                                             </td>
                                             <td className="p-4 align-top text-xs text-gray-400 dark:text-gray-500 max-w-xs truncate" title={report.user_agent}>
                                                 {report.user_agent}
+                                            </td>
+                                            <td className="p-4 align-top text-xs">
+                                                <button
+                                                    onClick={() => handleDelete(report.id)}
+                                                    className="text-red-500 hover:text-red-700 font-medium transition-colors"
+                                                >
+                                                    Delete
+                                                </button>
                                             </td>
                                         </tr>
                                     ))}

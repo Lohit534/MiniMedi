@@ -37,7 +37,7 @@ const MiniChatbot = ({ isOpen, setIsOpen }) => {
                 subject: selectedSubject,
                 email: reportData.email,
                 description: reportData.description,
-                userAgent: navigator.userAgent
+                user_agent: navigator.userAgent
             });
             toast.success("Report sent successfully!");
             setShowReport(false);
