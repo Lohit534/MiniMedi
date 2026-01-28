@@ -5,8 +5,7 @@ import { toast } from 'react-toastify';
 
 const MiniChatbot = ({ isOpen, setIsOpen }) => {
     const initialMessages = [
-        { id: 1, text: "Hello! How can I help you today?", sender: 'ai' },
-        { id: 2, text: "Please note: Reported issues are typically resolved within 30 minutes. If you encounter any problem, please report it and wait 30 minutes before trying again.", sender: 'ai' }
+        { id: 1, text: "Please note: Reported issues are typically resolved within 30 minutes. If you encounter any problem, please report it and wait 30 minutes before trying again.", sender: 'ai' }
     ];
     const [messages, setMessages] = useState(initialMessages);
     const [input, setInput] = useState('');

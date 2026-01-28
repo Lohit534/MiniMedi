@@ -131,7 +131,7 @@ const HomePage = ({ setIsChatbotOpen }) => {
                                 onClick={() => setIsChatbotOpen(true)}
                                 className="w-full sm:w-auto bg-white dark:bg-slate-900 text-gray-900 dark:text-white border border-gray-200 dark:border-slate-800 px-8 py-3.5 rounded-lg font-semibold hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
                             >
-                                Chat with AI
+                                Chat with AI / Report Issue
                             </button>
                         )}
                     </div>
