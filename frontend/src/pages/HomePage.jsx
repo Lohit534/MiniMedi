@@ -126,14 +126,12 @@ const HomePage = ({ setIsChatbotOpen }) => {
                             Try AI Checker
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
                         </Link>
-                        {getToken() && (
-                            <button
-                                onClick={() => setIsChatbotOpen(true)}
-                                className="w-full sm:w-auto bg-white dark:bg-slate-900 text-gray-900 dark:text-white border border-gray-200 dark:border-slate-800 px-8 py-3.5 rounded-lg font-semibold hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
-                            >
-                                Chat with AI / Report Issue
-                            </button>
-                        )}
+                        <button
+                            onClick={() => setIsChatbotOpen(true)}
+                            className="w-full sm:w-auto bg-white dark:bg-slate-900 text-gray-900 dark:text-white border border-gray-200 dark:border-slate-800 px-8 py-3.5 rounded-lg font-semibold hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
+                        >
+                            Chat with Bot / Report Issue
+                        </button>
                     </div>
                 </div>
             </section>
